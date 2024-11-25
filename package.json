@@ -2,8 +2,8 @@
   "name": "heso-package",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/js/bundle.min.js",
-  "styles": "dist/css/bundle.min.css",
+  "main": "index.js",
+  "styles": "index.css",
   "directories": {
     "example": "examples"
   },
