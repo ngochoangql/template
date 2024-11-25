@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "styles": "index.css",
+  "private": false,
   "directories": {
     "example": "examples"
   },
@@ -15,9 +16,17 @@
   "license": "ISC",
   "dependencies": {
     "browser-sync": "^3.0.3",
+    "desandro-matches-selector": "^2.0.0",
+    "ev-emitter": "^2.1.1",
+    "fizzy-ui-utils": "^3.0.0",
+    "get-size": "^3.0.0",
     "gulp-minify-css": "^1.2.4",
     "gulp-update": "^0.0.2",
-    "heso-package": "file:",
+    "isotope-layout": "^3.0.6",
+    "jquery": "^3.6.0",
+    "jquery-mousewheel": "^3.1.13",
+    "masonry-layout": "^4.2.2",
+    "outlayer": "^2.1.0",
     "serve": "^14.2.4"
   },
   "devDependencies": {
@@ -47,5 +56,4 @@
     "url": "https://github.com/ngochoangql/template/issues"
   },
   "homepage": "https://github.com/ngochoangql/template#readme"
-
 }
