@@ -7,96 +7,45 @@ var {src, dest, ...gulp} = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     sass = require('gulp-sass')(require('sass'));
     header = require('gulp-header');
+const yargs = require('yargs'); // Import yargs
 
-const srcPath = 'package/src'
-const distPath = 'package/dist';
+const argv = yargs.argv;
+const distPath = argv.dist || 'dist'; // Nếu không có tham số --dist, sẽ sử dụng 'dist' làm giá trị mặc định
+const srcPath ='src'; // Nếu không có tham số --dist, sẽ sử dụng 'dist' làm giá trị mặc định
 
-// Gulp-SAAS
-gulp.task('sass', function () {
-    return src([`${srcPath}/sass/style.scss`])
-        .pipe(sourcemaps.init())
-        .pipe(sass())
-        .pipe(dest(`${distPath}/css`)) // concatinated css file
-        .pipe(concat('style.min.css')) // concatinated css file sass/style.scss
-        .pipe(minifyCSS({processImport: false}))
-        .pipe(sourcemaps.write('.'))
-        .pipe(dest(`${distPath}/css`)) // minified css file css/style.min.css
-        // .pipe(browserSync.reload({
-        //     stream: true // watched by BrowserSync
-        // }))
+
+gulp.task('styles', function () {
+    return src([
+        `${srcPath}/sass/style.scss`,        // File Sass chính
+        `${srcPath}/sass/responsive.scss`,   // File Sass cho responsive
+        `${srcPath}/sass/icon/icon.scss`,    // File Sass cho icon
+        `${srcPath}/sass/vendors/**/*.scss` // Các file Sass của vendors
+    ])
+        .pipe(sourcemaps.init()) // Khởi tạo sourcemaps
+        .pipe(sass().on('error', sass.logError)) // Biên dịch Sass thành CSS
+        .pipe(concat('bundle.min.css'))
+        .pipe(minifyCSS({ processImport: false })) // Minify CSS
+        .pipe(sourcemaps.write('.')) // Ghi sourcemap
+        .pipe(dest(`${distPath}/css`)); // Lưu file CSS đã kết hợp vào dist/css
 });
 
-gulp.task('responsive', function () {
-    return src([`${srcPath}/sass/responsive.scss`])
-        .pipe(sourcemaps.init())
-        .pipe(sass())
-        .pipe(dest(`${distPath}/css`)) // concatinated css file
-        .pipe(concat('responsive.min.css')) // concatinated css file sass/style.scss
-        .pipe(minifyCSS({processImport: false}))
-        .pipe(sourcemaps.write('.'))
-        .pipe(dest(`${distPath}/css`)) // minified css file css/style.min.css
-        // .pipe(browserSync.reload({
-        //     stream: true // watched by BrowserSync
-        // }))
-});
 
-gulp.task('icon', function () {
-    return src(`${srcPath}/sass/icon/icon.scss`)
-        .pipe(sourcemaps.init())
-        .pipe(sass())
-        .pipe(dest(`${distPath}/css`)) // concatinated css file
-        .pipe(concat('icon.min.css')) // concatinated css file sass/style.scss
-        .pipe(minifyCSS({processImport: false}))
-        .pipe(sourcemaps.write('.'))
-        .pipe(dest(`${distPath}/css`)) // minified css file css/style.min.css
-        // .pipe(browserSync.reload({
-        //     stream: true // watched by BrowserSync
-        // }))
-});
-
-gulp.task('vendors', function () {
-    return src(`${srcPath}/sass/vendors/**/*.scss`)
-        .pipe(sourcemaps.init())
-        .pipe(sass())
-        .pipe(dest(`${distPath}/css`)) // concatinated css file
-        .pipe(concat('vendors.min.css')) // concatinated css file sass/style.scss
-        .pipe(minifyCSS({processImport: false}))
-        .pipe(sourcemaps.write('.'))
-        .pipe(dest(`${distPath}/css`)) // minified css file css/style.min.css
-        // .pipe(browserSync.reload({
-        //     stream: true // watched by BrowserSync
-        // }))
-});
 
 // Gulp-concat & gulp-terser
-gulp.task('concat-vendors', function () {
-    src([
-        `${srcPath}/js/vendors/*.js`
-    ])
-        .pipe(concat('vendors.js')) // concatinated js file
-        .pipe(dest(`${distPath}/js`)); // js/vendors.js
+gulp.task('js', function () {
+    return src([
+        `${srcPath}/js/vendors/*.js`,
+        `${srcPath}/js/jquery.js`,
+        `${srcPath}/js/main.js`,
 
-    src([
-        `${srcPath}/js/vendors/*.js`
     ])
-        .pipe(concat('vendors.min.js'))
+        .pipe(concat('bundle.js')) // concatinated js file
+        .pipe(dest(`${distPath}/js`)) // js/vendors.js
+        .pipe(concat('bundle.min.js'))
         .pipe(terser({output: {comments: /^!/}})) // minified js file js/vendors.min.js
         .pipe(dest(`${distPath}/js`)); // js/vendors.min.js
 });
 
-// Gulp-concat & gulp-terser
-gulp.task('js-other', function () {
-    src([
-        `${srcPath}/js/jquery.js`
-    ])
-        .pipe(concat('jquery.js')) // concatinated js file
-        .pipe(dest(`${distPath}/js`)); // js/vendors.js
-    src([
-        `${srcPath}/js/main.js`
-    ])
-        .pipe(concat('main.js')) // concatinated js file
-        .pipe(dest(`${distPath}/js`)); // js/vendors.js
-});
 
 // // Browser sync
 // gulp.task('browserSync', function () {
@@ -127,7 +76,7 @@ gulp.task('js-other', function () {
 
 
 // Gulp watch
-gulp.task('default', gulp.parallel( 'sass', 'icon', 'vendors', 'concat-vendors', 'responsive','js-other', function (done) {
+gulp.task('default', gulp.parallel(  'js', 'styles', function (done) {
     // gulp.watch(`${srcPath}/sass/**/*.scss`).on('change', gulp.series('sass'));
     // gulp.watch(`${srcPath}/sass/icon/*.scss`).on('change', gulp.series('icon'));
     // gulp.watch(`${srcPath}/sass/vendors/**/*.scss`).on('change', gulp.series('vendors'));
